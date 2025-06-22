@@ -69,11 +69,18 @@ function Quiz({
   const { sentence, meanings } = getCard(monster.id);
 
   const onFailed = useCallback(() => {
-    if (sfxEnabled && !(ttsEnabled && defaultMode)) errorSfx.play();
+    setShow(false);
+    const ttsWillSpeak = ttsEnabled && defaultMode;
+    if (sfxEnabled && !ttsWillSpeak) errorSfx.play();
     sendMonsterUpdate(monster, false);
   }, [monster, ttsEnabled, sfxEnabled, defaultMode]);
   const onCorrect = useCallback(() => {
-    if (sfxEnabled && !(ttsEnabled && defaultMode)) successSfx.play();
+    const sessionFinished =
+      session.failed.length + session.pending.length === 1;
+    const ttsWillSpeak = ttsEnabled && defaultMode;
+    if (sfxEnabled && (!ttsWillSpeak || sessionFinished)) {
+      successSfx.play();
+    }
     sendMonsterUpdate(monster, true);
   }, [monster, ttsEnabled, sfxEnabled, defaultMode]);
   const onShow = useCallback(() => {
